@@ -1,1 +1,3 @@
-# brainstream
+# brainstream\n\n## Running and Hosting Qwen 7B LLM using Google Colab (for RAG App)\n\n1. Open [llm_colab.ipynb](llm_colab.ipynb) in Google Colab.\n2. Set Runtime > Change runtime type > T4 GPU.\n3. Update ngrok token (free account at ngrok.com).\n4. Run all cells: Installs llama-cpp-python, loads Qwen2-7B-Instruct-Q4_K_M (~4GB VRAM), starts Gradio chat UI.\n5. Get public ngrok URL for hosting the chat interface.\n\n**Customization:** Edit `generate_response()` for RAG (add your retriever context). Model runs on GPU for fast inference.\n\n**Backend/Frontend:** Integrate public URL or `generate_response()` into your FastAPI backend or Next.js frontend.\n\nTest: Chat works out-of-box. Disconnect ngrok when done."
+</xai:function_call name="edit_file">
+<parameter name="path">d:/study/dev/ott/TODO.md
