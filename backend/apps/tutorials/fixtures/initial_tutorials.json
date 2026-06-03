@@ -1,0 +1,219 @@
+[
+  {
+    "model": "tutorials.tutorial",
+    "pk": 1,
+    "fields": {
+      "slug": "hls-basics",
+      "title": "HLS Basics",
+      "description": "Learn how to segment an MP4 into HLS chunks, build an .m3u8 playlist, and serve it in a player.",
+      "category": "hls",
+      "order": 1,
+      "icon": "layers"
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 1,
+    "fields": {
+      "tutorial": 1,
+      "order": 1,
+      "title": "What is HLS?",
+      "explanation": "HTTP Live Streaming (HLS) was created by Apple. It splits video into small .ts segments (typically 2–10 seconds) and provides a playlist file (.m3u8) that tells the player which segments to fetch in order. Because it's served over plain HTTP, it works through CDNs and firewalls that block RTMP.",
+      "command": "",
+      "command_description": "",
+      "expected_output_hint": ""
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 2,
+    "fields": {
+      "tutorial": 1,
+      "order": 2,
+      "title": "Segment a video into HLS",
+      "explanation": "The `-hls_time 6` flag sets each segment to ~6 seconds. `-hls_list_size 0` keeps all segments in the playlist (VOD mode). The output is `playlist.m3u8` plus numbered `.ts` files.",
+      "command": "ffmpeg -i input.mp4 -c:v libx264 -c:a aac -hls_time 6 -hls_list_size 0 -hls_segment_filename segment_%03d.ts playlist.m3u8",
+      "command_description": "Transcode MP4 → H.264/AAC, split into 6-second segments, write HLS playlist",
+      "expected_output_hint": "You should see segment_000.ts, segment_001.ts ... and playlist.m3u8 in the output files."
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 3,
+    "fields": {
+      "tutorial": 1,
+      "order": 3,
+      "title": "Inspect the .m3u8 playlist",
+      "explanation": "A Media Playlist lists every segment with its duration. The #EXT-X-TARGETDURATION tag tells the player the max segment length. #EXT-X-ENDLIST marks a complete (VOD) stream. Copy the playlist.m3u8 URL from the output and paste it into the Player Lab to verify playback.",
+      "command": "ffprobe -i playlist.m3u8 -show_entries format=duration -v quiet -of csv=p=0",
+      "command_description": "Print total duration parsed from the HLS playlist",
+      "expected_output_hint": "A number in seconds representing total stream duration."
+    }
+  },
+  {
+    "model": "tutorials.tutorial",
+    "pk": 2,
+    "fields": {
+      "slug": "adaptive-bitrate",
+      "title": "Adaptive Bitrate (ABR) Ladder",
+      "description": "Create multiple quality renditions and a master playlist so players can switch bitrates based on network conditions.",
+      "category": "hls",
+      "order": 2,
+      "icon": "bar-chart"
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 4,
+    "fields": {
+      "tutorial": 2,
+      "order": 1,
+      "title": "What is ABR?",
+      "explanation": "Adaptive Bitrate Streaming (ABR) encodes the same video at multiple resolutions/bitrates. A Master Playlist lists all renditions. The player measures download speed and buffer health, then switches to the best-fitting rendition automatically. This is what powers Netflix, YouTube, and every major OTT platform.",
+      "command": "",
+      "command_description": "",
+      "expected_output_hint": ""
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 5,
+    "fields": {
+      "tutorial": 2,
+      "order": 2,
+      "title": "Encode 720p rendition",
+      "explanation": "Create the 720p tier at ~2.5 Mbps video, ~128k audio. `-maxrate` and `-bufsize` constrain peaks for CBR-like delivery over HTTP.",
+      "command": "ffmpeg -i input.mp4 -c:v libx264 -b:v 2500k -maxrate 2500k -bufsize 5000k -vf scale=-2:720 -c:a aac -b:a 128k -hls_time 6 -hls_list_size 0 -hls_segment_filename 720p_%03d.ts 720p.m3u8",
+      "command_description": "Encode 720p HLS rendition at 2.5 Mbps",
+      "expected_output_hint": "720p.m3u8 + 720p_000.ts ... files in output."
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 6,
+    "fields": {
+      "tutorial": 2,
+      "order": 3,
+      "title": "Encode 360p rendition",
+      "explanation": "The 360p low-quality tier is critical for users on weak connections. At ~500 kbps it still delivers watchable video.",
+      "command": "ffmpeg -i input.mp4 -c:v libx264 -b:v 500k -maxrate 500k -bufsize 1000k -vf scale=-2:360 -c:a aac -b:a 64k -hls_time 6 -hls_list_size 0 -hls_segment_filename 360p_%03d.ts 360p.m3u8",
+      "command_description": "Encode 360p HLS rendition at 500 kbps",
+      "expected_output_hint": "360p.m3u8 + 360p_000.ts ... files in output."
+    }
+  },
+  {
+    "model": "tutorials.tutorial",
+    "pk": 3,
+    "fields": {
+      "slug": "codec-comparison",
+      "title": "Codec Comparison: H.264 vs H.265 vs AV1",
+      "description": "Transcode the same clip to three codecs and compare file size versus quality. Understand why newer codecs exist.",
+      "category": "codec",
+      "order": 3,
+      "icon": "cpu"
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 7,
+    "fields": {
+      "tutorial": 3,
+      "order": 1,
+      "title": "Why do codecs matter?",
+      "explanation": "A codec compresses raw video frames. Better codecs = same quality at lower bitrate = less storage, less bandwidth, faster streams. H.264 (AVC) is the universal baseline. H.265 (HEVC) is ~40% smaller at the same quality. AV1 is royalty-free and ~50% smaller than H.264, but encodes much slower.",
+      "command": "",
+      "command_description": "",
+      "expected_output_hint": ""
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 8,
+    "fields": {
+      "tutorial": 3,
+      "order": 2,
+      "title": "Encode with H.264 (CRF 23)",
+      "explanation": "CRF (Constant Rate Factor) controls quality. 0 = lossless, 51 = worst. 23 is the default and a good baseline. Lower = better quality + larger file.",
+      "command": "ffmpeg -i input.mp4 -c:v libx264 -crf 23 -preset medium -c:a aac -b:a 128k output_h264.mp4",
+      "command_description": "H.264 encode at CRF 23, medium preset",
+      "expected_output_hint": "output_h264.mp4. Note the file size."
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 9,
+    "fields": {
+      "tutorial": 3,
+      "order": 3,
+      "title": "Encode with H.265 (CRF 28)",
+      "explanation": "H.265 at CRF 28 produces roughly the same visual quality as H.264 at CRF 23, but the file is ~40% smaller. The encode is slower. Note: not all browsers support H.265 natively (needs hardware decode or MSE).",
+      "command": "ffmpeg -i input.mp4 -c:v libx265 -crf 28 -preset medium -c:a aac -b:a 128k output_h265.mp4",
+      "command_description": "H.265/HEVC encode at CRF 28",
+      "expected_output_hint": "output_h265.mp4 should be noticeably smaller than H.264 output."
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 10,
+    "fields": {
+      "tutorial": 3,
+      "order": 4,
+      "title": "Encode with AV1 (CRF 30)",
+      "explanation": "AV1 is royalty-free (developed by Alliance for Open Media). At CRF 30 it matches H.265 quality at ~10-20% smaller size. Encoding is very slow (libaom-av1). For production use SVT-AV1 which is 20-50x faster.",
+      "command": "ffmpeg -i input.mp4 -c:v libaom-av1 -crf 30 -b:v 0 -c:a libopus -b:a 128k output_av1.mp4",
+      "command_description": "AV1 encode at CRF 30 (warning: slow)",
+      "expected_output_hint": "output_av1.mp4. Smallest file. Encoding will take significantly longer."
+    }
+  },
+  {
+    "model": "tutorials.tutorial",
+    "pk": 4,
+    "fields": {
+      "slug": "ffmpeg-filters",
+      "title": "FFmpeg Filters Essentials",
+      "description": "Learn the filtergraph system: scale, crop, overlay, drawtext, and audio normalization.",
+      "category": "ffmpeg",
+      "order": 4,
+      "icon": "filter"
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 11,
+    "fields": {
+      "tutorial": 4,
+      "order": 1,
+      "title": "Scale and pad for a standard size",
+      "explanation": "The `scale` filter resizes video. `scale=-2:1080` sets height to 1080px while keeping aspect ratio (width rounded to multiple of 2 for codec compatibility). The `pad` filter adds black bars to hit an exact dimension (letterbox).",
+      "command": "ffmpeg -i input.mp4 -vf \"scale=-2:1080,pad=1920:1080:(ow-iw)/2:(oh-ih)/2\" output_1080p.mp4",
+      "command_description": "Scale to 1080p height, letterbox to 1920x1080",
+      "expected_output_hint": "output_1080p.mp4 at exactly 1920x1080 with letterbox bars if needed."
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 12,
+    "fields": {
+      "tutorial": 4,
+      "order": 2,
+      "title": "Burn a timecode overlay",
+      "explanation": "`drawtext` writes text on each frame. `%{pts\\:hms}` is the PTS (Presentation Timestamp) formatted as HH:MM:SS — useful for QC review copies.",
+      "command": "ffmpeg -i input.mp4 -vf \"drawtext=fontsize=36:fontcolor=white:box=1:boxcolor=black@0.5:x=10:y=10:text='%{pts\\:hms}'\" output_timecode.mp4",
+      "command_description": "Burn HH:MM:SS timecode into top-left corner",
+      "expected_output_hint": "output_timecode.mp4 with white timecode stamp on each frame."
+    }
+  },
+  {
+    "model": "tutorials.step",
+    "pk": 13,
+    "fields": {
+      "tutorial": 4,
+      "order": 3,
+      "title": "Audio loudness normalization (EBU R128)",
+      "explanation": "OTT platforms require audio at -23 LUFS (EBU R128) or -24 LUFS (ATSC A/85). The `loudnorm` filter auto-normalizes integrated loudness, true peak, and LRA in a single pass.",
+      "command": "ffmpeg -i input.mp4 -af loudnorm=I=-23:TP=-1.5:LRA=11 -c:v copy output_normalized.mp4",
+      "command_description": "Normalize audio to EBU R128 (-23 LUFS), copy video stream",
+      "expected_output_hint": "output_normalized.mp4 with corrected loudness. Check with ffprobe or a LUFS meter."
+    }
+  }
+]
